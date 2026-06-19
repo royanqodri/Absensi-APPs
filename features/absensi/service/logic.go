@@ -1,13 +1,13 @@
 package service
 
 import (
-	"Absensi-App/features/absensi"
 	"errors"
 	"log"
 	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/royanqodri/Absensi/features/absensi"
 )
 
 type AbsensiService struct {

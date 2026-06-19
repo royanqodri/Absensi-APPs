@@ -1,11 +1,11 @@
 package service
 
 import (
-	"Absensi-App/features/users"
 	"errors"
 	"mime/multipart"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/royanqodri/Absensi/features/users"
 )
 
 type UserService struct {

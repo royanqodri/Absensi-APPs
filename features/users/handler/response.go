@@ -1,6 +1,6 @@
 package handler
 
-import "Absensi-App/features/users"
+import "github.com/royanqodri/Absensi/features/users"
 
 type LoginResponse struct {
 	ID    uint   `json:"id,omitempty"`

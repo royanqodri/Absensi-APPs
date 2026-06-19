@@ -1,7 +1,7 @@
 package data
 
 import (
-	"Absensi-App/features/users"
+	"github.com/royanqodri/Absensi/features/users"
 
 	"gorm.io/gorm"
 )

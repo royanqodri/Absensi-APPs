@@ -1,8 +1,10 @@
 package database
 
 import (
-	"Absensi-App/app/config"
-	absensi "Absensi-App/features/absensi/data"
+	"github.com/royanqodri/Absensi/config"
+
+	absensi "github.com/royanqodri/Absensi/features/absensi/data"
+
 	"fmt"
 
 	"gorm.io/driver/mysql"

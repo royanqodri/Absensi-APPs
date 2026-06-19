@@ -1,8 +1,6 @@
 package handler
 
-import (
-	"Absensi-App/features/users"
-)
+import "github.com/royanqodri/Absensi/features/users"
 
 type UserHandler struct {
 	userService users.UserServiceInterface

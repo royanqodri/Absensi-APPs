@@ -1,6 +1,6 @@
 package handler
 
-import "Absensi-App/features/users"
+import "github.com/royanqodri/Absensi/features/users"
 
 type UserRequest struct {
 	Name         string `json:"name" form:"name" validate:"required"`

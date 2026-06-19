@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"Absensi-App/features/absensi"
+	"github.com/royanqodri/Absensi/features/absensi"
 )
 
 type AbsensiResponse struct {
