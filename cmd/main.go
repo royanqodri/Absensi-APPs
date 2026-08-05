@@ -33,6 +33,9 @@ func main() {
 	// Init Database
 	initDatabase()
 
+	// Run Migration
+	initMigration()
+
 	// Init Repository
 	initRepository()
 
@@ -55,15 +58,21 @@ func initConfig() {
 }
 
 func initDatabase() {
-	// Panggil fungsi ConnectDatabase dari package database
+	// Panggil ConnectDatabase
 	database.ConnectDatabase()
 
-	// Cek apakah koneksi berhasil
 	if database.DBConn == nil {
 		log.Fatalf("❌ Database connection is nil")
 	}
 
 	log.Println("✅ Database ready")
+}
+
+// TAMBAHKAN FUNGSI INI UNTUK MIGRASI
+func initMigration() {
+	log.Println("🔄 Running database migration...")
+	database.MigrateDatabase()
+	log.Println("✅ Database migration completed")
 }
 
 func initRepository() {
@@ -96,7 +105,6 @@ func runServer() {
 
 	// Health Check
 	e.GET("/health", func(c echo.Context) error {
-		// Cek database connection
 		if database.DBConn == nil {
 			return c.JSON(http.StatusServiceUnavailable, map[string]string{
 				"status": "unhealthy",
@@ -104,7 +112,6 @@ func runServer() {
 			})
 		}
 
-		// Ping database
 		sqlDB, err := database.DBConn.DB()
 		if err != nil || sqlDB.Ping() != nil {
 			return c.JSON(http.StatusServiceUnavailable, map[string]string{

@@ -3,7 +3,7 @@ package database
 import (
 	"github.com/royanqodri/Absensi/config"
 
-	absensi "github.com/royanqodri/Absensi/features/absensi/data"
+	"github.com/royanqodri/Absensi/model/entity"
 
 	"fmt"
 
@@ -22,6 +22,21 @@ func InitMysql(cfg *config.AppConfig) *gorm.DB {
 	return DB
 }
 
+// InitialMigration - Auto migrate tabel
 func InitialMigration(db *gorm.DB) {
-	db.AutoMigrate(&absensi.Absensi{})
+	err := db.AutoMigrate(
+		&entity.TAbsensi{},
+		&entity.TUser{},
+	)
+	if err != nil {
+		panic("Failed to migrate: " + err.Error())
+	}
+	fmt.Println("✅ Migration completed successfully")
+}
+
+func MigrateDatabase() {
+	if DBConn == nil {
+		panic("❌ Database not connected. Call ConnectDatabase() first")
+	}
+	InitialMigration(DBConn)
 }

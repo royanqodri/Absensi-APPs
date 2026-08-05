@@ -87,13 +87,18 @@ func IsDuplicateError(err error) bool {
 // 	}
 // }
 
+type StatusResponse struct {
+	Code    int      `json:"status_code"`
+	Status  string   `json:"status_text"`
+	Message string   `json:"message"`
+	Errors  []string `json:"errors"`
+}
+
 type MainResponse struct {
-	Status    int         `json:"status"`
-	Message   string      `json:"message"`
-	Data      interface{} `json:"data"`
-	TotalPage int64       `json:"total_page"`
-	TotalData int64       `json:"total_data"`
-	Errors    []string    `json:"errors"`
+	StatusResponse StatusResponse `json:"status_response"`
+	TotalPage      int64          `json:"total_page"`
+	TotalData      int64          `json:"total_data"`
+	Data           interface{}    `json:"data"`
 }
 
 type DuplicateError struct {
@@ -114,20 +119,42 @@ func NewDuplicateError(fields []string) *DuplicateError {
 }
 
 // WriteResponseEcho - Helper response untuk Echo Framework
-func WriteResponseEcho(ctx echo.Context, statusCode int, data interface{}, message string, totalPage, totalData int64, errors []string) error {
-	resp := MainResponse{
-		Status:    statusCode,
-		Message:   message,
-		Data:      data,
-		TotalPage: totalPage,
-		TotalData: totalData,
-		Errors:    errors,
+func WriteResponseEcho(ctx echo.Context, category string, httpCode int, data interface{}, message string, totalPage int64, totalData int64, errorValues []string) {
+	if isEmpty(data) {
+		data = []interface{}{}
 	}
 
-	return ctx.JSON(statusCode, resp)
+	// Check if http code is empty, then set default to 500 internal server error
+	if httpCode == 0 {
+		httpCode = http.StatusInternalServerError
+	}
+
+	// Check if error message is due to a duplicate entry
+	if httpCode == http.StatusConflict && IsDuplicateError(errors.New(message)) {
+		httpCode = http.StatusConflict // Set HTTP status code to 409 for duplicates
+		message = "Conflict: Duplicate entry detected"
+		errorValues = errorValues
+	}
+
+	if category == JSON {
+		ctx.JSON(
+			httpCode,
+			MainResponse{
+				StatusResponse: StatusResponse{
+					Code:    httpCode,
+					Status:  http.StatusText(httpCode),
+					Message: message,
+					Errors:  errorValues,
+				},
+				TotalPage: totalPage,
+				TotalData: totalData,
+				Data:      data,
+			},
+		)
+	}
 }
 
 // WriteDuplicateResponseEcho - Khusus untuk error duplicate (409)
-func WriteDuplicateResponseEcho(ctx echo.Context, duplicateFields []string) error {
-	return WriteResponseEcho(ctx, http.StatusConflict, nil, "data duplicated", 0, 0, duplicateFields)
+func WriteDuplicateResponseEcho(ctx echo.Context, duplicateFields []string) {
+	WriteResponseEcho(ctx, JSON, http.StatusConflict, nil, "data duplicated", 0, 0, duplicateFields)
 }

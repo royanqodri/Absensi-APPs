@@ -12,11 +12,11 @@ import (
 )
 
 type TAbsensiRepository interface {
-	GetById(ctx echo.Context, tx *gorm.DB, id string) (response.TAbsensiGetResponse, error)
+	GetById(ctx echo.Context, tx *gorm.DB, id int64) (response.TAbsensiGetResponse, error)
 	GetByParamsMain(ctx echo.Context, tx *gorm.DB, request request.TAbsensiGetRequest, limit, offset int) (respData []response.TAbsensiGetResponse, totalPage int64, totalData int64, err error)
 	Save(ctx echo.Context, tx *gorm.DB, req []entity.TAbsensi) error
 	Update(ctx echo.Context, tx *gorm.DB, req entity.TAbsensi) error
-	Delete(ctx echo.Context, tx *gorm.DB, id string) error
+	Delete(ctx echo.Context, tx *gorm.DB, id int64) error
 }
 
 type TAbsensiRepositoryImpl struct {
@@ -34,11 +34,11 @@ func (repo TAbsensiRepositoryImpl) getTx(tx *gorm.DB) *gorm.DB {
 }
 
 // GetById implements TAbsensiRepository.
-func (repo TAbsensiRepositoryImpl) GetById(ctx echo.Context, tx *gorm.DB, id string) (response.TAbsensiGetResponse, error) {
+func (repo TAbsensiRepositoryImpl) GetById(ctx echo.Context, tx *gorm.DB, id int64) (response.TAbsensiGetResponse, error) {
 	data := response.TAbsensiGetResponse{}
 
 	result := repo.getTx(tx).
-		Select("id, id_user, over_time_masuk, over_time_pulang, jam_masuk, jam_keluar, created_at, updated_at").
+		Select("id, id_user, overtime_masuk, overtime_pulang, jam_masuk, jam_keluar, created_at, updated_at").
 		Table("t_absensi").
 		Where("id = ? AND deleted_at IS NULL", id).
 		Scan(&data)
@@ -56,11 +56,11 @@ func (repo TAbsensiRepositoryImpl) GetById(ctx echo.Context, tx *gorm.DB, id str
 // GetByParamsMain implements TAbsensiRepository.
 func (repo TAbsensiRepositoryImpl) GetByParamsMain(ctx echo.Context, tx *gorm.DB, request request.TAbsensiGetRequest, limit, offset int) (respData []response.TAbsensiGetResponse, totalPage int64, totalData int64, err error) {
 	query := repo.getTx(tx).
-		Select("id, id_user, over_time_masuk, over_time_pulang, jam_masuk, jam_keluar, created_at, updated_at").
+		Select("id, id_user, overtime_masuk, overtime_pulang, jam_masuk, jam_keluar, created_at, updated_at").
 		Table("t_absensi").
 		Where("deleted_at IS NULL")
 
-	if request.IdUser != "" {
+	if request.IdUser != 0 {
 		query = query.Where("id_user = ?", request.IdUser)
 	}
 
@@ -71,14 +71,6 @@ func (repo TAbsensiRepositoryImpl) GetByParamsMain(ctx echo.Context, tx *gorm.DB
 	if request.JamKeluar != "" {
 		query = query.Where("jam_keluar = ?", request.JamKeluar)
 	}
-
-	// if request.OverTimeMasuk != "" {
-	// 	query = query.Where("over_time_masuk = ?", request.OverTimeMasuk)
-	// }
-
-	// if request.OverTimePulang != "" {
-	// 	query = query.Where("over_time_pulang = ?", request.OverTimePulang)
-	// }
 
 	if !request.StartDate.IsZero() {
 		query = query.Where("DATE(created_at) >= ?", request.StartDate.Format("2006-01-02"))
@@ -127,37 +119,20 @@ func (repo TAbsensiRepositoryImpl) GetByParamsMain(ctx echo.Context, tx *gorm.DB
 // Save implements TAbsensiRepository.
 func (repo *TAbsensiRepositoryImpl) Save(ctx echo.Context, tx *gorm.DB, req []entity.TAbsensi) error {
 	for _, absensi := range req {
-		// var existing entity.TAbsensi
-
 		query := "id_user = ? AND DATE(created_at) = DATE(?) AND deleted_at IS NULL"
 		args := []any{
 			absensi.IdUser,
 			absensi.CreatedAt,
 		}
 
-		if absensi.Id != "" {
+		if absensi.Id != 0 {
 			query += " AND id != ?"
 			args = append(args, absensi.Id)
 		}
 
-		// err := util.CheckDuplicateWithComparator(repo.getTx(tx), &existing, query, args,
-		// 	func() []string {
-		// 		return util.CompareFields(
-		// 			map[string][2]any{
-		// 				"absensi already exists for this user on this date": {existing.CreatedAt.Format("2006-01-02"), absensi.CreatedAt.Format("2006-01-02")},
-		// 			},
-		// 		)
-		// 	},
-		// )
-
-		// if err != nil {
-		// 	return err
-		// }
-	}
-
-	result := repo.getTx(tx).Create(&req)
-	if result.Error != nil {
-		return result.Error
+		if err := repo.getTx(tx).Save(&absensi).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -200,7 +175,7 @@ func (repo *TAbsensiRepositoryImpl) Update(ctx echo.Context, tx *gorm.DB, req en
 }
 
 // Delete implements TAbsensiRepository.
-func (repo *TAbsensiRepositoryImpl) Delete(ctx echo.Context, tx *gorm.DB, id string) error {
+func (repo *TAbsensiRepositoryImpl) Delete(ctx echo.Context, tx *gorm.DB, id int64) error {
 	var existing entity.TAbsensi
 
 	// Check if record exists

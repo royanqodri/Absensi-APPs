@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	dbConn "github.com/royanqodri/Absensi/database"
@@ -85,7 +84,7 @@ func (service TAbsensiServiceImpl) GetByParams(ctx echo.Context, request request
 	return respData, totalPage, totalData, nil
 }
 
-// Post - Disesuaikan dengan struktur request Absensi Anda
+// Post for Insert & Update
 func (service TAbsensiServiceImpl) Post(ctx echo.Context, request request.TAbsensiPostRequest) (err error) {
 	tx := dbConn.DBConn.Begin()
 
@@ -99,9 +98,8 @@ func (service TAbsensiServiceImpl) Post(ctx echo.Context, request request.TAbsen
 
 	for i, data := range request.Data {
 		// Trim data
-		data.IdUser = strings.TrimSpace(data.IdUser)
 		operation := constants.STATUS_DATA_INSERT
-		if data.Id != "" {
+		if data.Id != 0 {
 			operation = constants.STATUS_DATA_UPDATE
 		}
 

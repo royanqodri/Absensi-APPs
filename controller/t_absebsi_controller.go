@@ -58,7 +58,8 @@ func (controller *TAbsensiControllerImpl) GetByParams(ctx echo.Context) error {
 			"message":  err,
 			"source":   ctx.QueryParam("source"),
 		})
-		return util.WriteResponseEcho(ctx, http.StatusBadRequest, nil, fmt.Sprintf("%v", err), 0, 0, []string{})
+		util.WriteResponseEcho(ctx, util.JSON, http.StatusBadRequest, []any{}, fmt.Sprintf("%v", err), 0, 0, []string{})
+		return err
 	}
 
 	// Get data from service
@@ -70,10 +71,12 @@ func (controller *TAbsensiControllerImpl) GetByParams(ctx echo.Context) error {
 			"message":  err,
 			"source":   ctx.QueryParam("source"),
 		})
-		return util.WriteResponseEcho(ctx, http.StatusInternalServerError, nil, fmt.Sprintf("%v", err), 0, 0, []string{err.Error()})
+		util.WriteResponseEcho(ctx, util.JSON, http.StatusInternalServerError, []any{}, fmt.Sprintf("%v", err), 0, 0, []string{err.Error()})
+		return err
 	}
 
-	return util.WriteResponseEcho(ctx, http.StatusOK, respData, "success", totalPage, totalData, []string{})
+	util.WriteResponseEcho(ctx, util.JSON, http.StatusOK, respData, "success", totalPage, totalData, []string{})
+	return err
 }
 
 // Post godoc
@@ -93,35 +96,31 @@ func (controller *TAbsensiControllerImpl) Post(ctx echo.Context) error {
 	req := request.TAbsensiPostRequest{}
 
 	if err := ctx.Bind(&req); err != nil {
-		logging.LogWithFields(logging.ERROR, logging.ERROR, logrus.Fields{
-			"endpoint": ctx.Request().URL.String(),
-			"method":   ctx.Request().Method,
-			"message":  err,
-		})
-		return util.WriteResponseEcho(ctx, http.StatusBadRequest, nil, fmt.Sprintf("%v", err), 0, 0, []string{})
+
+		util.WriteResponseEcho(ctx, util.JSON, http.StatusBadRequest, []any{}, fmt.Sprintf("%v", err), 0, 0, []string{})
+		return err
 	}
 
-	// Optional: Check permission (sesuaikan dengan middleware Anda)
-	if !ctx.Get("access_create").(bool) && !ctx.Get("access_update").(bool) {
-		return util.WriteResponseEcho(ctx, http.StatusForbidden, nil, "Access denied. Please check your permissions.", 0, 0, []string{})
-	}
+	// // Optional: Check permission (sesuaikan dengan middleware Anda)
+	// if !ctx.Get("access_create").(bool) && !ctx.Get("access_update").(bool) {
+	// 	util.WriteResponseEcho(ctx, util.JSON, http.StatusForbidden, nil, "Access denied. Please check your permissions.", 0, 0, []string{})
+	// 	return fmt.Errorf("access denied")
+	// }
 
 	err := controller.tAbsensiService.Post(ctx, req)
 	if err != nil {
-		logging.LogWithFields(logging.ERROR, logging.ERROR, logrus.Fields{
-			"endpoint": ctx.Request().URL.String(),
-			"method":   ctx.Request().Method,
-			"message":  err,
-		})
 
 		// Handle duplicate error jika ada
 		var dupErr *util.DuplicateError
 		if errors.As(err, &dupErr) {
-			return util.WriteDuplicateResponseEcho(ctx, dupErr.Fields)
+			util.WriteDuplicateResponseEcho(ctx, dupErr.Fields)
+			return err
 		}
 
-		return util.WriteResponseEcho(ctx, http.StatusInternalServerError, nil, fmt.Sprintf("%v", err), 0, 0, []string{err.Error()})
+		util.WriteResponseEcho(ctx, util.JSON, http.StatusInternalServerError, []any{}, fmt.Sprintf("%v", err), 0, 0, []string{err.Error()})
+		return err
 	}
 
-	return util.WriteResponseEcho(ctx, http.StatusOK, nil, "success", 0, 0, []string{})
+	util.WriteResponseEcho(ctx, util.JSON, http.StatusOK, []any{}, "success", 0, 0, []string{})
+	return nil
 }
