@@ -21,9 +21,17 @@ import (
 )
 
 var (
-	tAbsensiRepo       repository.TAbsensiRepository
-	tAbsensiService    service.TAbsensiService
+	// Repository
+	tAbsensiRepo repository.TAbsensiRepository
+	tUserRepo    repository.TUserRepository
+
+	// Service
+	tAbsensiService service.TAbsensiService
+	tUserService    service.TUserService
+
+	// Controller
 	tAbsensiController controller.TAbsensiController
+	tUserController    controller.TUserController
 )
 
 func main() {
@@ -77,14 +85,17 @@ func initMigration() {
 
 func initRepository() {
 	tAbsensiRepo = repository.NewTAbsensiRepository()
+	tUserRepo = repository.NewTUserRepository()
 }
 
 func initService() {
 	tAbsensiService = service.NewTAbsensiService(tAbsensiRepo)
+	tUserService = service.NewTUserService(tUserRepo)
 }
 
 func initController() {
 	tAbsensiController = controller.NewTAbsensiController(tAbsensiService)
+	tUserController = controller.NewTUserController(tUserService)
 }
 
 func runServer() {
@@ -98,10 +109,12 @@ func runServer() {
 	}))
 	e.Use(middleware.Recover())
 
-	// API Routes with versioning
+	// EndPoint
 	api := e.Group("/api/v1")
 	api.GET("/absensi", tAbsensiController.GetByParams)
 	api.POST("/absensi", tAbsensiController.Post)
+	api.GET("/user", tUserController.GetByParams)
+	api.POST("/user", tUserController.Post)
 
 	// Health Check
 	e.GET("/health", func(c echo.Context) error {

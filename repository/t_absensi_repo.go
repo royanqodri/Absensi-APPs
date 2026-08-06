@@ -56,39 +56,32 @@ func (repo TAbsensiRepositoryImpl) GetById(ctx echo.Context, tx *gorm.DB, id int
 // GetByParamsMain implements TAbsensiRepository.
 func (repo TAbsensiRepositoryImpl) GetByParamsMain(ctx echo.Context, tx *gorm.DB, request request.TAbsensiGetRequest, limit, offset int) (respData []response.TAbsensiGetResponse, totalPage int64, totalData int64, err error) {
 	query := repo.getTx(tx).
-		Select("id, id_user, overtime_masuk, overtime_pulang, jam_masuk, jam_keluar, created_at, updated_at").
-		Table("t_absensi").
-		Where("deleted_at IS NULL")
+		Select("ab.id, ab.id_user, u.name, u.username, ab.overtime_masuk, ab.overtime_pulang, ab.jam_masuk, ab.jam_keluar, ab.created_at, ab.updated_at").
+		Joins("LEFT JOIN t_user AS u ON ab.id_user = u.id").
+		Table("t_absensi ab").
+		Where("ab.deleted_at IS NULL")
 
 	if request.IdUser != 0 {
-		query = query.Where("id_user = ?", request.IdUser)
+		query = query.Where("ab.id_user = ?", request.IdUser)
 	}
 
 	if request.JamMasuk != "" {
-		query = query.Where("jam_masuk = ?", request.JamMasuk)
+		query = query.Where("ab.jam_masuk = ?", request.JamMasuk)
 	}
 
 	if request.JamKeluar != "" {
-		query = query.Where("jam_keluar = ?", request.JamKeluar)
+		query = query.Where("ab.jam_keluar = ?", request.JamKeluar)
 	}
 
 	if !request.StartDate.IsZero() {
-		query = query.Where("DATE(created_at) >= ?", request.StartDate.Format("2006-01-02"))
+		query = query.Where("DATE(ab.created_at) >= ?", request.StartDate.Format("2006-01-02"))
 	}
 
 	if !request.EndDate.IsZero() {
-		query = query.Where("DATE(created_at) <= ?", request.EndDate.Format("2006-01-02"))
+		query = query.Where("DATE(ab.created_at) <= ?", request.EndDate.Format("2006-01-02"))
 	}
 
-	if !request.CreatedAt.IsZero() {
-		query = query.Where("DATE(created_at) = ?", request.CreatedAt.Format("2006-01-02"))
-	}
-
-	if !request.UpdatedAt.IsZero() {
-		query = query.Where("DATE(updated_at) = ?", request.UpdatedAt.Format("2006-01-02"))
-	}
-
-	query = query.Order("created_at DESC, jam_masuk ASC")
+	query = query.Order("ab.created_at DESC, ab.jam_masuk ASC")
 
 	// Count total data
 	if err := query.Count(&totalData).Error; err != nil {

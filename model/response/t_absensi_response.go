@@ -3,10 +3,12 @@ package response
 import "time"
 
 type TAbsensiGetResponse struct {
-	Id             string    `json:"id"`
-	IdUser         string    `json:"id_user"`
-	OverTimeMasuk  string    `json:"overtime_masuk"`
-	OverTimePulang string    `json:"overtime_pulang"`
+	Id             int64     `json:"id"`
+	IdUser         int64     `json:"id_user"`
+	Name           string    `json:"name"`
+	Username       string    `json:"username"`
+	OvertimeMasuk  string    `json:"overtime_masuk"`
+	OvertimePulang string    `json:"overtime_pulang"`
 	JamMasuk       string    `json:"jam_masuk"`
 	JamKeluar      string    `json:"jam_keluar"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -14,8 +16,8 @@ type TAbsensiGetResponse struct {
 }
 
 type TAbsensiPostResponse struct {
-	Id         string `json:"id"`
-	IdUser     string `json:"id_user"`
+	Id         int64  `json:"id"`
+	IdUser     int64  `json:"id_user"`
 	JamMasuk   string `json:"jam_masuk"`
 	JamKeluar  string `json:"jam_keluar"`
 	StatusCode int    `json:"status_code"`
