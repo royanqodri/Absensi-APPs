@@ -119,7 +119,7 @@ func (service TAbsensiServiceImpl) Post(ctx echo.Context, request request.TAbsen
 
 				return errGet
 			}
-			if existing.Id == "" {
+			if existing.Id == 0 {
 				return errors.New("absensi record not found")
 			}
 
