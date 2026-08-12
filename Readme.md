@@ -1,7 +1,7 @@
 # Absensi API 🏢
 ### Employee Attendance Backend Service (Go + Echo + MySQL)
 
-![Go](https://img.shields.io/badge/Go-1.20+-00ADD8?style=for-the-badge&logo=go)
+![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?style=for-the-badge&logo=go)
 ![Echo](https://img.shields.io/badge/Echo-v4-00ADD8?style=for-the-badge)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![GORM](https://img.shields.io/badge/GORM-ORM-blue?style=for-the-badge)
