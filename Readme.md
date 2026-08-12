@@ -62,7 +62,7 @@ This service manages two core resources: **employees (users)** and **attendance 
 
 | Category | Technology |
 |----------|------------|
-| Language | Go 1.20+ |
+| Language | Go 1.26+ |
 | Web Framework | Echo v4 |
 | ORM | GORM |
 | Database | MySQL 8.0 |
