@@ -195,7 +195,7 @@ Content-Type: application/json
   ]
 }
 ```
-```
+
 **Success POST response:**
 ```json
 {
@@ -211,7 +211,6 @@ Content-Type: application/json
 }
 ```
 
-```
 
 **Duplicate error POST response:**
 ```json
@@ -228,7 +227,6 @@ Content-Type: application/json
 }
 ```
 
-```
 **Internal error POST response:**
 ```json
 {
@@ -244,7 +242,6 @@ Content-Type: application/json
 }
 ``` 
 
-```
 
 GET /api/v1/absensi
 Content-Type: application/json
